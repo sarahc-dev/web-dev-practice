@@ -35,13 +35,13 @@ val app: HttpHandler = routes(
     },
     "/echo_headers" bind Method.GET to {
         request: Request ->
-        // List of Pairs
         val headers = request.headers
-        val body = headers.joinToString("\n") { "${it.first}: ${it.second}" }
+        val acceptsJson = headers.any { it.first == "Accept" && it.second?.contains("json") ?: false }
+        val body = if (acceptsJson) headers.joinToString(prefix = "{", postfix = "}", separator = ",") { "\"${it.first}\":\"${it.second}\"" }
+        else headers.joinToString("\n") { "${it.first}: ${it.second}" }
 
-        Response(OK).body(body)
+        if (acceptsJson) Response(OK).header("Content-Type", "application/json").body(body) else Response(OK).body(body)
     }
-
 )
 
 fun main() {

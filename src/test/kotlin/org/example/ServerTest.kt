@@ -50,4 +50,13 @@ class ServerTest {
 
         assertEquals(Response(OK).body("Accept: text/html\nConnection: keep-alive\nCustom: header"), request)
     }
+
+    @Test
+    fun `if client supports json responses, returns headers as key-value pairs`() {
+        val request = app(Request(Method.GET, "/echo_headers")
+            .header("Accept", "application/json")
+            .header("Connection", "keep-alive")
+            .header("Custom", "header"))
+        assertEquals(Response(OK).header("Content-Type", "application/json").body("{\"Accept\":\"application/json\",\"Connection\":\"keep-alive\",\"Custom\":\"header\"}"), request)
+    }
 }
