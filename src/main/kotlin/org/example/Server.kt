@@ -32,6 +32,14 @@ val app: HttpHandler = routes(
         }
 
         Response(OK).body("$greeting$name")
+    },
+    "/echo_headers" bind Method.GET to {
+        request: Request ->
+        // List of Pairs
+        val headers = request.headers
+        val body = headers.joinToString("\n") { "${it.first}: ${it.second}" }
+
+        Response(OK).body(body)
     }
 
 )

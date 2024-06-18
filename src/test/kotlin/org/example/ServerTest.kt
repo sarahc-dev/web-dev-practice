@@ -35,4 +35,19 @@ class ServerTest {
         assertEquals(Response(OK).body("Salve Alice"), app(Request(Method.GET, "/it-IT/hello").query("name", "Alice")))
         assertEquals(Response(OK).body("Alright, Akash?"), app(Request(Method.GET, "/en-GB/hello").query("name", "Akash")))
     }
+
+    @Test
+    fun `if user visits echo_headers sending a custom header, it responds with the header`() {
+        assertEquals(Response(OK).body("Accept: text/html"), app(Request(Method.GET, "/echo_headers").header("Accept", "text/html")))
+    }
+
+    @Test
+    fun `if user visits echo_headers sending multiple custom headers, it responds with a list of headers`() {
+        val request = app(Request(Method.GET, "/echo_headers")
+            .header("Accept", "text/html")
+            .header("Connection", "keep-alive")
+            .header("Custom", "header"))
+
+        assertEquals(Response(OK).body("Accept: text/html\nConnection: keep-alive\nCustom: header"), request)
+    }
 }
