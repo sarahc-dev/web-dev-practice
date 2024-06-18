@@ -9,7 +9,12 @@ import org.junit.jupiter.api.Assertions.*
 
 class ServerTest {
     @Test
-    fun `server test`() {
+    fun `if user visits hello endpoint it responds Hello`() {
         assertEquals(Response(OK).body("Hello"), app(Request(Method.GET, "/hello")))
+    }
+
+    @Test
+    fun `if user visits hello endpoint and includes name param it responds Hello and name`() {
+        assertEquals(Response(OK).body("Hello Sarah"), app(Request(Method.GET, "/hello").query("name", "Sarah")))
     }
 }
