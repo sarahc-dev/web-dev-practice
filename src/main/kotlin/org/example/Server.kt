@@ -40,10 +40,17 @@ val app: HttpHandler = routes(
     "/echo_headers" bind Method.GET to {
         request: Request ->
         val headers = request.headers
-        val requestHeaders = RequestHeaders(headers.toMap())
+        val responseHeadersPrefix = request.query("as_response_headers_with_prefix")
 
-        val acceptsJson = headers.any { it.first == "Accept" && it.second?.contains("json") ?: false }
-        if (acceptsJson) jsonLens.inject(requestHeaders, Response(OK)) else Response(OK).body(headers.joinToString("\n") { "${it.first}: ${it.second}" })
+        if (responseHeadersPrefix == null) {
+            val requestHeaders = RequestHeaders(headers.toMap())
+
+            val acceptsJson = headers.any { it.first == "Accept" && it.second?.contains("json") ?: false }
+            if (acceptsJson) jsonLens.inject(requestHeaders, Response(OK)) else Response(OK).body(headers.joinToString("\n") { "${it.first}: ${it.second}" })
+        } else {
+            val headersWithPrefix = headers.map { Pair(responseHeadersPrefix + it.first, it.second) }
+            Response(OK).headers(headersWithPrefix)
+        }
     }
 )
 
