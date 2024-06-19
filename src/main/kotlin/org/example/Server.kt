@@ -18,8 +18,21 @@ val jsonLens: BiDiBodyLens<RequestHeaders> = Body.auto<RequestHeaders>().toLens(
 val app: HttpHandler = routes(
     "/hello" bind Method.GET to {
         request: Request ->
-        val name = request.query("name")?.let { " $it" } ?: ""
-        Response(OK).body("Hello$name")
+        var name = request.query("name")?.let { " $it" } ?: ""
+        val acceptedLanguage = request.headers.find { it.first == "Accept-language" }?.second
+
+        val greeting = when {
+            acceptedLanguage == null -> "Hello"
+            acceptedLanguage.contains("fr-FR") -> "Bonjour"
+            acceptedLanguage.contains("en-AU") -> "G'day"
+            acceptedLanguage.contains("it-IT") -> "Salve"
+            acceptedLanguage.contains("en-GB") -> {
+                if (name != "") name += "?"
+                if (name == "") "Alright" else "Alright,"
+            }
+            else -> "Hello"
+        }
+        Response(OK).body("$greeting$name")
     },
     "/{language}/hello" bind Method.GET to {
         request: Request ->

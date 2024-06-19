@@ -68,4 +68,20 @@ class ServerTest {
         val expectedResponse = Response(OK).header("X-Echo-X-My-Custom-Header", "some value").body("")
         assertEquals(expectedResponse, request)
     }
+
+    @Test
+    fun `if the client visits hello endpoint and their language is french, it responds bonjour`() {
+        val request = app(Request(Method.GET, "/hello")
+            .header("Accept-language", "fr-FR"))
+        val expectedResponse = Response(OK).body("Bonjour")
+        assertEquals(expectedResponse, request)
+    }
+
+    @Test
+    fun `if the client visits hello endpoint, includes name param and their language is italian, it responds salvo and their name`() {
+        val request = app(Request(Method.GET, "/hello?name=Jim")
+            .header("Accept-language", "it-IT"))
+        val expectedResponse = Response(OK).body("Salve Jim")
+        assertEquals(expectedResponse, request)
+    }
 }
