@@ -57,6 +57,6 @@ class ServerTest {
             .header("Accept", "application/json")
             .header("Connection", "keep-alive")
             .header("Custom", "header"))
-        assertEquals(Response(OK).header("Content-Type", "application/json").body("{\"Accept\":\"application/json\",\"Connection\":\"keep-alive\",\"Custom\":\"header\"}"), request)
+        assertEquals(Response(OK).header("content-type", "application/json; charset=utf-8").body("{\"headers\":{\"Accept\":\"application/json\",\"Connection\":\"keep-alive\",\"Custom\":\"header\"}}"), request)
     }
 }
