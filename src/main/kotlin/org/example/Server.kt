@@ -9,7 +9,9 @@ import org.http4k.server.SunHttp
 import org.http4k.server.asServer
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.BiDiBodyLens
+import org.http4k.lens.Query
 
+val queryName = Query.optional("name")
 data class RequestHeaders(val headers: Map<String, String?>)
 
 // BiDi allows for outgoing + incoming
@@ -18,7 +20,7 @@ val jsonLens: BiDiBodyLens<RequestHeaders> = Body.auto<RequestHeaders>().toLens(
 val app: HttpHandler = routes(
     "/hello" bind Method.GET to {
         request: Request ->
-        var name = request.query("name")?.let { " $it" } ?: ""
+        var name = queryName(request)
         val acceptedLanguage = request.headers.find { it.first == "Accept-language" }?.second
 
         val greeting = when {
@@ -27,12 +29,12 @@ val app: HttpHandler = routes(
             acceptedLanguage.contains("en-AU") -> "G'day"
             acceptedLanguage.contains("it-IT") -> "Salve"
             acceptedLanguage.contains("en-GB") -> {
-                if (name != "") name += "?"
-                if (name == "") "Alright" else "Alright,"
+                if (name != null) name += "?"
+                if (name == null) "Alright" else "Alright,"
             }
             else -> "Hello"
         }
-        Response(OK).body("$greeting$name")
+        Response(OK).body("$greeting${if (name != null) " $name" else ""}")
     },
     "/{language}/hello" bind Method.GET to {
         request: Request ->
