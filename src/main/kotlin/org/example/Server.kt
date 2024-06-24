@@ -21,6 +21,7 @@ val app: HttpHandler = routes(
     "/hello" bind Method.GET to {
         request: Request ->
         var name = queryName(request)
+        println("test: ${name == null}")
         val acceptedLanguage = request.headers.find { it.first == "Accept-language" }?.second
 
         val greeting = when {
@@ -35,22 +36,6 @@ val app: HttpHandler = routes(
             else -> "Hello"
         }
         Response(OK).body("$greeting${if (name != null) " $name" else ""}")
-    },
-    "/{language}/hello" bind Method.GET to {
-        request: Request ->
-        var name = request.query("name")?.let { " $it" } ?: ""
-        val greeting = when (request.path("language")) {
-            "fr-FR" -> "Bonjour"
-            "en-AU" -> "G'day"
-            "it-IT" -> "Salve"
-            "en-GB" -> {
-                if (name != "") name += "?"
-                if (name == "") "Alright" else "Alright,"
-            }
-            else -> "Hello"
-        }
-
-        Response(OK).body("$greeting$name")
     },
     "/echo_headers" bind Method.GET to {
         request: Request ->
@@ -73,4 +58,8 @@ fun main() {
     val server = app.asServer(SunHttp(9000)).start()
 
     println("Server started on " + server.port())
+
+    val client = MyHttpClient(baseUrl="http://localhost:9000")
+    println(client.hello(name="Bruce", language="en-US")) // should return "Hello Bruce"
+
 }
